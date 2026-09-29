@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REGENIX — Smart Hybrid Energy System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Mobile Overlay Backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">⚡</div>
+      <div>
+        <div class="brand-name">REGENIX</div>
+        <div class="brand-sub">Smart Hybrid Energy System</div>
+      </div>
+      <button class="sidebar-close-btn" id="sidebarCloseBtn">✕</button>
+    </div>
+
+    <nav class="nav" id="mainNav">
+      <button class="nav-item active" data-page="dashboard"><span>⌂</span>Dashboard</button>
+      <button class="nav-item" data-page="3d"><span>◇</span>3D System</button>
+      <button class="nav-item" data-page="monitoring"><span>⌁</span>Real-Time Monitoring</button>
+      <button class="nav-item" data-page="generation"><span>☀</span>Generation</button>
+      <button class="nav-item" data-page="battery"><span>▣</span>Battery & BMS</button>
+      <button class="nav-item" data-page="switching"><span>⇄</span>Hybrid Switching</button>
+      <button class="nav-item" data-page="loads"><span>☷</span>Load Management</button>
+      <button class="nav-item" data-page="ai"><span>✦</span>AI & Optimization</button>
+      <button class="nav-item" data-page="weather"><span>☁</span>Weather & Forecast</button>
+      <button class="nav-item" data-page="optimizer"><span>⚙</span>Optimization Engine</button>
+      <button class="nav-item" data-page="simulator"><span>◈</span>What-If Simulator</button>
+      <button class="nav-item" data-page="analytics"><span>▤</span>Analytics</button>
+      <button class="nav-item" data-page="ev"><span>⚡</span>EV Management</button>
+      <button class="nav-item" data-page="alerts"><span>△</span>Faults & Alerts</button>
+      <button class="nav-item" data-page="maintenance"><span>⚙</span>Maintenance</button>
+      <button class="nav-item" data-page="reports"><span>▤</span>Reports</button>
+      <button class="nav-item" data-page="carbon"><span>♧</span>Carbon Savings</button>
+      <button class="nav-item" data-page="settings"><span>⚙</span>Settings</button>
+    </nav>
+
+    <div class="system-status">
+      <div class="status-title">SYSTEM STATUS <span class="status-dot"></span></div>
+      <div class="status-ok" id="sidebarStatusText">All Systems Normal</div>
+      <div class="small">Last Update: <span id="lastUpdate">--:--:--</span></div>
+      <div class="small">Uptime: <b>99.8%</b></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" title="Toggle Navigation">☰</button>
+      <div class="time-weather">
+        <div id="clock">--:--</div>
+        <div class="weather">☀ 28°C <span>Partly Cloudy</span></div>
+      </div>
+      <div class="search">
+        <span>⌕</span>
+        <input id="searchInput" placeholder="Search anything (e.g. Battery, AI, Loads)..." autocomplete="off">
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <div class="top-actions">
+        <span class="connected" id="connectionStatus"><i></i> Server Connected</span>
+        <button class="icon-btn notif-btn-wrap" id="notificationBtn" title="Notifications">
+          ♧ <span id="notifBadge" class="notif-badge">3</span>
+        </button>
+        <div class="profile"><div class="avatar">RT</div><div><b>REGENIX Team</b><small>Admin</small></div><span>⌄</span></div>
+      </div>
+    </header>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- NOTIFICATION SLIDE-OUT DRAWER -->
+    <div id="drawerOverlay" class="drawer-overlay"></div>
+    <aside id="notificationDrawer" class="notification-drawer">
+      <div class="drawer-header">
+        <h3>System Notifications & Alerts</h3>
+        <button class="close-drawer-btn" id="closeDrawerBtn">✕</button>
+      </div>
+      <div class="drawer-actions">
+        <button class="text-btn" id="drawerAckAllBtn">✓ Acknowledge All</button>
+        <button class="text-btn danger-text" id="drawerTriggerFaultBtn">⚡ Inject Demo Overload</button>
+      </div>
+      <div class="drawer-body" id="drawerAlertList">
+        <!-- Dynamically rendered alerts -->
+      </div>
+    </aside>
+
+    <!-- DASHBOARD -->
+    <section class="page active-page" data-page-content="dashboard">
+      <div class="section-heading">
+        <div><h1>REGENIX SYSTEM OVERVIEW</h1><p>Live status of your smart hybrid renewable energy system</p></div>
+        <div class="live-pill"><span></span> LIVE</div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="scene-card">
+          <div id="scene"></div>
+          <div class="scene-overlay">
+            <div class="scene-topline">
+              <span>SMART HYBRID ENERGY MICROGRID</span>
+              <span class="scene-live">● LIVE 3D</span>
+            </div>
+            <div class="scene-hint">Drag to rotate • Scroll to zoom</div>
+          </div>
+        </div>
+
+        <div class="right-stack">
+          <div class="panel">
+            <div class="panel-head"><h3>POWER FLOW</h3><span class="live-text">● Live</span></div>
+            <div class="donut-wrap">
+              <div class="donut"><div>⚡</div></div>
+              <div class="legend">
+                <div><i class="solar"></i>From Solar <b id="solarPct">58%</b></div>
+                <div><i class="wind"></i>From Wind <b id="windPct">29%</b></div>
+                <div><i class="battery"></i>From Battery <b id="batteryPct">13%</b></div>
+              </div>
+            </div>
+            <div class="split-stats">
+              <div>Total Generation <b id="totalGeneration">202 W</b></div>
+              <div>Total Consumption <b id="totalConsumption">146 W</b></div>
+            </div>
+          </div>
+
+          <div class="panel efficiency-panel">
+            <div class="panel-head"><h3>SYSTEM EFFICIENCY</h3><span class="eff" id="dashEfficiency">91%</span></div>
+            <div class="eff-row"><strong>Excellent</strong><div class="progress"><span id="dashEffBar" style="width:91%"></span></div></div>
+          </div>
+
+          <div class="panel load-panel">
+            <div class="panel-head"><h3>SMART LOAD MANAGEMENT</h3><button class="text-btn" data-go="loads">View All →</button></div>
+            <table>
+              <thead><tr><th>#</th><th>LOAD CATEGORY</th><th>STATUS</th><th>POWER</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Critical Loads</td><td><em class="on" id="dashCritStatus">ON</em></td><td id="dashCritPower">72 W</td></tr>
+                <tr><td>2</td><td>Important Loads</td><td><em class="on" id="dashImpStatus">ON</em></td><td id="dashImpPower">48 W</td></tr>
+                <tr><td>3</td><td>Non-Critical Loads</td><td><em class="on" id="dashNonCritStatus">ON</em></td><td id="dashNonCritPower">26 W</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric solar-card"><span>☀</span><div><small>SOLAR POWER</small><strong id="solarPower">128 W</strong><p id="solarSub">18.4 V • 6.9 A</p></div><div class="spark"></div></div>
+        <div class="metric wind-card"><span>♨</span><div><small>WIND POWER</small><strong id="windPower">74 W</strong><p id="windSub">12.7 V • 5.8 A</p></div><div class="spark"></div></div>
+        <div class="metric battery-card"><span>▣</span><div><small>BATTERY SOC</small><strong id="batteryPower">72%</strong><p id="batterySub">12.4 V • −3.2 A</p></div><div class="spark"></div></div>
+        <div class="metric load-card"><span>⌁</span><div><small>TOTAL LOAD</small><strong id="loadPower">146 W</strong><p id="loadSub">230 V • 0.63 A</p></div><div class="spark"></div></div>
+        <div class="metric efficiency-card"><span>♧</span><div><small>SYSTEM EFFICIENCY</small><strong id="dashMetricEff">91%</strong><p>Excellent</p></div><div class="spark"></div></div>
+      </div>
+
+      <div class="feature-grid" id="featureGrid">
+        <article class="feature" data-go="monitoring"><span class="num">1</span><div class="feature-icon">⌁</div><h3>Real-Time Monitoring</h3><p>Live voltage, current, power and frequency monitoring.</p><button>View</button></article>
+        <article class="feature" data-go="generation"><span class="num">2</span><div class="feature-icon">☀</div><h3>Solar & Wind Monitoring</h3><p>Separate live tracking of solar and wind generation.</p><button>View</button></article>
+        <article class="feature" data-go="battery"><span class="num">3</span><div class="feature-icon">▣</div><h3>Battery & BMS</h3><p>Battery SoC, voltage, current and charge/discharge status.</p><button>View</button></article>
+        <article class="feature" data-go="switching"><span class="num">4</span><div class="feature-icon">⇄</div><h3>Hybrid Switching</h3><p>Automatic source selection between renewable, battery and grid.</p><button>View</button></article>
+        <article class="feature" data-go="loads"><span class="num">5</span><div class="feature-icon">☷</div><h3>Load Prioritization</h3><p>Smart control of critical, important and non-critical loads.</p><button>View</button></article>
+        <article class="feature" data-go="ai"><span class="num">6</span><div class="feature-icon">↗</div><h3>AI Load Forecasting</h3><p>Predict upcoming energy demand using intelligent models.</p><button>View</button></article>
+        <article class="feature" data-go="ai"><span class="num">7</span><div class="feature-icon">✦</div><h3>AI Energy Optimization</h3><p>Recommend the best power source for current conditions.</p><button>View</button></article>
+        <article class="feature" data-go="alerts"><span class="num">8</span><div class="feature-icon">△</div><h3>Fault Detection & Alerts</h3><p>Detect overload, low battery and abnormal conditions.</p><button>View</button></article>
+        <article class="feature" data-go="maintenance"><span class="num">9</span><div class="feature-icon">⚙</div><h3>Predictive Maintenance</h3><p>Early warnings for equipment maintenance.</p><button>View</button></article>
+        <article class="feature" data-go="ev"><span class="num">10</span><div class="feature-icon">⚡</div><h3>EV Load Balancer</h3><p>Balance EV charging to avoid peak demand.</p><button>View</button></article>
+        <article class="feature" data-go="dashboard"><span class="num">11</span><div class="feature-icon">▣</div><h3>Live Web Dashboard</h3><p>Real-time data, graphs, alerts and power flow.</p><button>View</button></article>
+        <article class="feature" data-go="carbon"><span class="num">12</span><div class="feature-icon">♧</div><h3>Carbon Savings</h3><p>Track CO₂ avoided by renewable energy use.</p><button>View</button></article>
+      </div>
+
+      <div class="charts">
+        <div class="chart-panel"><div class="panel-head"><h3>ENERGY GENERATION <small>(Today)</small></h3><button class="text-btn" data-go="reports">View Report →</button></div><canvas id="generationChart"></canvas></div>
+        <div class="chart-panel"><div class="panel-head"><h3>BATTERY SOC <small>(Today)</small></h3><button class="text-btn" data-go="battery">View Details →</button></div><canvas id="batteryChart"></canvas></div>
+        <div class="chart-panel carbon-panel"><div class="panel-head"><h3>CARBON SAVINGS <small>(This Month)</small></h3><button class="text-btn" data-go="carbon">View Report →</button></div><div class="carbon-content"><div class="carbon-ring">♧<b id="dashCarbonKg">128.6</b><small>kg CO₂ Saved</small></div><div><p>🌳 Trees Planted <b id="dashCarbonTrees">9</b></p><p>🚗 Car Not Driven <b id="dashCarbonKm">542 km</b></p></div></div></div>
+      </div>
+    </section>
+
+    <!-- DETAIL PAGES -->
+    <section class="page" data-page-content="3d"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>3D SYSTEM MODEL</h1><p>Interactive digital twin of the REGENIX hybrid energy system</p></div></div>
+      <div class="detail-3d"><div id="sceneDetail"></div><div class="model-help">Drag to rotate • Wheel to zoom • Labels are attached to 3D components</div></div>
+      <div class="info-grid">
+        <div class="info-card"><b>☀ Solar</b><strong id="3dSolar">128 W</strong><small id="3dSolarSub">18.4 V • 6.9 A</small></div>
+        <div class="info-card"><b>♨ Wind</b><strong id="3dWind">74 W</strong><small id="3dWindSub">12.7 V • 5.8 A</small></div>
+        <div class="info-card"><b>▣ Battery</b><strong id="3dBattery">72%</strong><small id="3dBatterySub">12.4 V • −3.2 A</small></div>
+        <div class="info-card"><b>⚡ Load</b><strong id="3dLoad">146 W</strong><small id="3dLoadSub">230 V • 0.63 A</small></div>
+      </div>
+    </div></section>
+
+    <section class="page" data-page-content="monitoring"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>REAL-TIME MONITORING</h1><p>Live electrical parameters across the REGENIX system</p></div><span class="live-pill"><span></span> LIVE</span></div>
+      <div class="kpi-grid">
+        <div class="big-kpi"><small>SOLAR VOLTAGE</small><strong id="monSolarV">18.4 V</strong><span id="monSolarStatus">Stable</span></div>
+        <div class="big-kpi"><small>WIND VOLTAGE</small><strong id="monWindV">12.7 V</strong><span id="monWindStatus">Stable</span></div>
+        <div class="big-kpi"><small>BATTERY CURRENT</small><strong id="monBattA">−3.2 A</strong><span id="monBattStatus">Discharging</span></div>
+        <div class="big-kpi"><small>LOAD POWER</small><strong id="monLoadP">146 W</strong><span id="monLoadStatus">Normal</span></div>
+      </div>
+      <div class="data-panel"><div class="panel-head"><h3>LIVE PARAMETERS</h3><span class="live-text">● Updating</span></div><table class="full-table"><thead><tr><th>SOURCE</th><th>VOLTAGE</th><th>CURRENT</th><th>POWER</th><th>STATUS</th></tr></thead><tbody id="monitoringTableBody"><tr><td>☀ Solar</td><td id="monTblSolarV">18.4 V</td><td id="monTblSolarA">6.9 A</td><td id="monTblSolarP">128 W</td><td><em class="on">NORMAL</em></td></tr><tr><td>♨ Wind</td><td id="monTblWindV">12.7 V</td><td id="monTblWindA">5.8 A</td><td id="monTblWindP">74 W</td><td><em class="on">NORMAL</em></td></tr><tr><td>▣ Battery</td><td id="monTblBattV">12.4 V</td><td id="monTblBattA">−3.2 A</td><td id="monTblBattP">40 W</td><td><em class="on" id="monTblBattSt">DISCHARGE</em></td></tr><tr><td>⚡ AC Load</td><td>230 V</td><td id="monTblLoadA">0.63 A</td><td id="monTblLoadP">146 W</td><td><em class="on">NORMAL</em></td></tr></tbody></table></div>
+    </div></section>
+
+    <section class="page" data-page-content="generation"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>GENERATION</h1><p>Solar and wind renewable energy generation</p></div></div>
+      <div class="source-cards">
+        <div class="source-card solar"><span>☀</span><h3>Solar Generation</h3><strong id="genSolarP">128 W</strong><p id="genSolarSub">18.4 V • 6.9 A</p><div class="progress"><span id="genSolarBar" style="width:68%"></span></div><small id="genSolarCap">68% of available solar capacity</small></div>
+        <div class="source-card wind"><span>♨</span><h3>Wind Generation</h3><strong id="genWindP">74 W</strong><p id="genWindSub">12.7 V • 5.8 A</p><div class="progress"><span id="genWindBar" style="width:42%"></span></div><small id="genWindCap">42% of available wind capacity</small></div>
+      </div>
+      <div class="data-panel"><div class="panel-head"><h3>GENERATION STRATEGY</h3></div><p class="large-note">REGENIX continuously compares renewable availability and uses the strongest available source before drawing from the battery or grid.</p><button class="primary-btn" data-go="switching">Open Hybrid Switching →</button></div>
+    </div></section>
+
+    <section class="page" data-page-content="battery"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>BATTERY & BMS</h1><p>Battery state, protection and charge/discharge intelligence</p></div></div>
+      <div class="battery-layout"><div class="battery-visual"><div class="battery-body"><div class="battery-fill" id="battFill" style="height:72%"><span id="battFillText">72%</span></div></div><b>State of Charge</b></div><div class="battery-stats"><div><small>VOLTAGE</small><strong id="battV">12.4 V</strong></div><div><small>CURRENT</small><strong id="battA">−3.2 A</strong></div><div><small>STATUS</small><strong class="green" id="battStatusText">DISCHARGING</strong></div><div><small>BMS</small><strong class="green">PROTECTED</strong></div></div></div>
+      <div class="threshold"><div><b>Smart Load Thresholds</b><span id="battThreshSoc">Battery SoC = 72%</span></div><div class="threshold-row"><span>≥ 50%</span><b>Critical + Important + Non-Critical</b><em class="on" id="threshRow1">ACTIVE</em></div><div class="threshold-row"><span>40–49%</span><b>Critical + Important</b><em id="threshRow2">STANDBY</em></div><div class="threshold-row"><span>&lt; 20%</span><b>Critical only</b><em id="threshRow3">STANDBY</em></div></div>
+    </div></section>
+
+    <section class="page" data-page-content="switching"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>HYBRID SWITCHING</h1><p>Intelligent source selection and automatic energy routing</p></div></div>
+      <div class="source-flow">
+        <div class="flow-node solar"><b>☀ SOLAR</b><strong id="switchSolarP">128 W</strong></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node controller"><b>⚡ REGENIX</b><strong>HYBRID CONTROLLER</strong></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node loads"><b>☷ LOADS</b><strong id="switchLoadP">146 W</strong></div>
+      </div>
+      <div class="data-panel"><div class="panel-head"><h3>CURRENT DECISION</h3><span class="on" id="switchDecision">SOLAR PRIORITY</span></div><p class="large-note">Solar is currently the preferred source. Wind contributes in parallel. Battery support is enabled only when renewable generation is insufficient.</p><div class="decision-list"><div><b>1</b> Renewable generation first</div><div><b>2</b> Battery support when required</div><div><b>3</b> Grid backup for critical continuity</div></div></div>
+    </div></section>
+
+    <section class="page" data-page-content="loads"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>LOAD MANAGEMENT</h1><p>Priority-based energy distribution & relay control</p></div></div>
+      <div class="priority-cards">
+        <div class="priority-card critical"><span>01</span><h3>CRITICAL</h3><strong id="loadsCritPower">72 W</strong><p>Medical, safety, communication and essential control loads.</p><button class="toggle active" data-load="critical">ON</button></div>
+        <div class="priority-card important"><span>02</span><h3>IMPORTANT</h3><strong id="loadsImpPower">48 W</strong><p>Fans, refrigeration, networking and useful household loads.</p><button class="toggle active" data-load="important">ON</button></div>
+        <div class="priority-card noncritical"><span>03</span><h3>NON-CRITICAL</h3><strong id="loadsNonCritPower">26 W</strong><p>Optional loads that can be disconnected during low SoC.</p><button class="toggle active" data-load="noncritical">ON</button></div>
+      </div>
+      <div class="data-panel"><h3>REGENIX PRIORITY LOGIC</h3><div class="logic"><span>Battery ≥ 50%</span><b>All loads</b></div><div class="logic"><span>Battery 40–49%</span><b>Critical + Important</b></div><div class="logic"><span>Battery 20–39%</span><b>Critical + limited Important</b></div><div class="logic"><span>Battery &lt; 20%</span><b>Critical only</b></div></div>
+    </div></section>
+
+    <section class="page" data-page-content="ai"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>AI & OPTIMIZATION</h1><p>Predictive energy intelligence for REGENIX</p></div></div>
+      <div class="ai-grid">
+        <div class="ai-card"><span>↗</span><h3>Load Forecast</h3><strong>Next 1 Hour</strong><p>Predicted demand: <b id="aiForecastP">158 W</b></p><div class="forecast-bars"><i style="height:35%"></i><i style="height:48%"></i><i style="height:60%"></i><i style="height:78%"></i><i style="height:90%"></i><i style="height:72%"></i></div></div>
+        <div class="ai-card"><span>✦</span><h3>Energy Recommendation</h3><strong id="aiRecText">Use Solar + Wind</strong><p>Estimated renewable contribution: <b id="aiRenewablePct">87%</b></p><div class="recommendation">✓ Battery reserve protected</div></div>
+        <div class="ai-card"><span>♧</span><h3>Optimization Score</h3><strong id="aiScoreText">94 / 100</strong><p>High renewable utilization with protected battery reserve.</p><div class="progress"><span id="aiScoreBar" style="width:94%"></span></div></div>
+      </div>
+    </div></section>
+
+    <!-- WEATHER & FORECAST PAGE -->
+    <section class="page" data-page-content="weather"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>WEATHER & AI FORECAST</h1><p>Weather-driven energy generation and demand prediction</p></div><span class="live-pill"><span></span> LIVE</span></div>
+
+      <div class="weather-current-grid">
+        <div class="weather-hero-card">
+          <div class="weather-hero-icon" id="weatherIcon">☀</div>
+          <div class="weather-hero-info">
+            <div class="weather-temp" id="weatherTemp">31°C</div>
+            <div class="weather-condition" id="weatherCondition">Partly Cloudy</div>
+            <div class="weather-location">📍 System Location</div>
+          </div>
+          <div class="weather-hero-stats">
+            <div><small>HUMIDITY</small><strong id="weatherHumidity">45%</strong></div>
+            <div><small>WIND</small><strong id="weatherWindSpeed">5.7 m/s</strong></div>
+            <div><small>IRRADIANCE</small><strong id="weatherIrradiance">820 W/m²</strong></div>
+            <div><small>CLOUD COVER</small><strong id="weatherCloud">18%</strong></div>
+            <div><small>PRESSURE</small><strong id="weatherPressure">1013 hPa</strong></div>
+            <div><small>UV INDEX</small><strong id="weatherUV">7</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="forecast-section">
+        <div class="panel-head"><h3>24-HOUR WEATHER FORECAST</h3><span class="live-text">● AI Predicted</span></div>
+        <div class="weather-hourly-strip" id="weatherHourlyStrip">
+          <!-- Dynamically rendered hourly weather cards -->
+        </div>
+      </div>
+
+      <div class="charts" style="grid-template-columns:1fr 1fr">
+        <div class="chart-panel"><div class="panel-head"><h3>SOLAR GENERATION FORECAST <small>(Next 24h)</small></h3></div><canvas id="solarForecastChart"></canvas><div class="forecast-metrics" id="solarForecastMetrics"><span>Peak: --</span><span>Total: --</span><span>Confidence: --</span></div></div>
+        <div class="chart-panel"><div class="panel-head"><h3>WIND GENERATION FORECAST <small>(Next 24h)</small></h3></div><canvas id="windForecastChart"></canvas><div class="forecast-metrics" id="windForecastMetrics"><span>Peak: --</span><span>Total: --</span><span>Confidence: --</span></div></div>
+      </div>
+      <div class="charts" style="grid-template-columns:1fr 1fr">
+        <div class="chart-panel"><div class="panel-head"><h3>LOAD DEMAND FORECAST <small>(Next 24h)</small></h3></div><canvas id="loadForecastChart"></canvas><div class="forecast-metrics" id="loadForecastMetrics"><span>Peak: --</span><span>Total: --</span><span>Confidence: --</span></div></div>
+        <div class="chart-panel"><div class="panel-head"><h3>RENEWABLE vs DEMAND <small>(Next 24h)</small></h3></div><canvas id="renewableDemandChart"></canvas><div class="forecast-metrics" id="combinedForecastMetrics"><span>Surplus Hours: --</span><span>Deficit Hours: --</span><span>Utilization: --</span></div></div>
+      </div>
+
+      <div class="anomaly-summary-panel data-panel">
+        <div class="panel-head"><h3>AI ANOMALY DETECTION</h3><span class="live-text">● Monitoring</span></div>
+        <div class="anomaly-list" id="anomalyList">
+          <div class="anomaly-empty">✓ No anomalies detected — All systems operating within expected parameters</div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- OPTIMIZATION ENGINE PAGE -->
+    <section class="page" data-page-content="optimizer"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>ENERGY OPTIMIZATION ENGINE</h1><p>AI-driven source selection, battery scheduling, and cost optimization</p></div></div>
+
+      <div class="optimizer-status-grid">
+        <div class="opt-status-card">
+          <small>RECOMMENDED SOURCE</small>
+          <strong id="optSource" class="green">SOLAR + WIND</strong>
+          <span id="optSourceReason">Maximum renewable availability</span>
+        </div>
+        <div class="opt-status-card">
+          <small>BATTERY ACTION</small>
+          <strong id="optBattery" class="green">CHARGE</strong>
+          <span id="optBatteryReason">Excess renewable energy available</span>
+        </div>
+        <div class="opt-status-card">
+          <small>ESTIMATED COST</small>
+          <strong id="optCost">₹12.4/hr</strong>
+          <span id="optCostSavings" class="green">↓ 34% vs baseline</span>
+        </div>
+        <div class="opt-status-card">
+          <small>RENEWABLE UTILIZATION</small>
+          <strong id="optRenewable" class="green">87%</strong>
+          <span>Target: ≥ 80%</span>
+        </div>
+      </div>
+
+      <div class="opt-decision-panel data-panel">
+        <div class="panel-head"><h3>OPTIMIZATION DECISION FLOW</h3><button class="primary-btn" id="runOptimization">⚡ Run Optimization</button></div>
+        <div class="opt-flow-visual">
+          <div class="opt-flow-node solar-glow"><b>☀ Solar</b><strong id="optFlowSolar">5.4 kW</strong></div>
+          <div class="opt-flow-arrow">→</div>
+          <div class="opt-flow-node wind-glow"><b>♨ Wind</b><strong id="optFlowWind">2.1 kW</strong></div>
+          <div class="opt-flow-arrow">→</div>
+          <div class="opt-flow-node controller-glow"><b>⚡ OPTIMIZER</b><strong>Decision Engine</strong></div>
+          <div class="opt-flow-arrow">→</div>
+          <div class="opt-flow-node load-glow"><b>☷ Loads</b><strong id="optFlowLoad">5.2 kW</strong></div>
+        </div>
+      </div>
+
+      <div class="opt-schedule-grid">
+        <div class="data-panel">
+          <h3>LOAD SCHEDULE</h3>
+          <div class="load-schedule-list" id="optLoadSchedule">
+            <div class="schedule-row"><span class="schedule-dot critical-dot"></span><b>Critical Loads</b><em class="on">MUST RUN</em><span>Always ON</span></div>
+            <div class="schedule-row"><span class="schedule-dot essential-dot"></span><b>Essential Loads</b><em class="on">RUNNING</em><span>Continuous operation recommended</span></div>
+            <div class="schedule-row"><span class="schedule-dot flexible-dot"></span><b>Flexible Loads</b><em id="optFlexStatus" class="on">OPTIMAL WINDOW</em><span id="optFlexWindow">11:00 – 13:00</span></div>
+          </div>
+        </div>
+        <div class="data-panel">
+          <h3>AI RECOMMENDATIONS</h3>
+          <div class="recommendation-list" id="optRecommendations">
+            <!-- Dynamically rendered -->
+          </div>
+        </div>
+      </div>
+
+      <div class="data-panel">
+        <div class="panel-head"><h3>OPTIMIZATION EXPLANATION</h3></div>
+        <div class="opt-explanation" id="optExplanation">
+          <div class="explanation-item">
+            <span class="explanation-icon">💡</span>
+            <div>
+              <b>Current Strategy</b>
+              <p>Using renewable generation for current demand. Solar generation is currently the primary source with wind as secondary. Battery charging is enabled during surplus periods.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- WHAT-IF SIMULATOR PAGE -->
+    <section class="page" data-page-content="simulator"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>WHAT-IF SIMULATOR</h1><p>Test scenarios without affecting the real system</p></div></div>
+
+      <div class="sim-layout">
+        <div class="sim-controls data-panel">
+          <h3>SCENARIO PARAMETERS</h3>
+          <div class="sim-control-group">
+            <label>Solar Generation Change
+              <div class="sim-slider-row"><input type="range" id="simSolar" min="-100" max="100" value="0" class="sim-slider"><span id="simSolarVal">0%</span></div>
+            </label>
+            <label>Wind Generation Change
+              <div class="sim-slider-row"><input type="range" id="simWind" min="-100" max="100" value="0" class="sim-slider"><span id="simWindVal">0%</span></div>
+            </label>
+            <label>Load Demand Change
+              <div class="sim-slider-row"><input type="range" id="simLoad" min="-50" max="100" value="0" class="sim-slider"><span id="simLoadVal">0%</span></div>
+            </label>
+            <label>Battery SOC (%)
+              <div class="sim-slider-row"><input type="range" id="simBattery" min="10" max="100" value="72" class="sim-slider"><span id="simBatteryVal">72%</span></div>
+            </label>
+            <label class="switch-row" style="padding:10px 0;border:0">
+              <span>Grid Available</span>
+              <input type="checkbox" id="simGrid" checked><span class="cyber-switch"></span>
+            </label>
+            <label>Grid Price Multiplier
+              <div class="sim-slider-row"><input type="range" id="simPrice" min="50" max="300" value="100" class="sim-slider"><span id="simPriceVal">1.0×</span></div>
+            </label>
+          </div>
+
+          <div class="sim-presets">
+            <button class="sim-preset-btn" data-preset="low-solar">☁ Low Solar</button>
+            <button class="sim-preset-btn" data-preset="high-demand">📈 High Demand</button>
+            <button class="sim-preset-btn" data-preset="grid-failure">⚡ Grid Failure</button>
+            <button class="sim-preset-btn" data-preset="battery-low">🔋 Low Battery</button>
+            <button class="sim-preset-btn" data-preset="peak-price">💰 Peak Price</button>
+            <button class="sim-preset-btn" data-preset="ideal">☀ Ideal Day</button>
+          </div>
+
+          <button class="primary-btn sim-run-btn" id="runSimulation">▶ RUN SIMULATION</button>
+        </div>
+
+        <div class="sim-results">
+          <div class="sim-kpi-grid">
+            <div class="sim-kpi"><small>ENERGY COST</small><strong id="simResultCost">--</strong></div>
+            <div class="sim-kpi"><small>RENEWABLE UTIL.</small><strong id="simResultRenewable">--</strong></div>
+            <div class="sim-kpi"><small>GRID DEPENDENCY</small><strong id="simResultGrid">--</strong></div>
+            <div class="sim-kpi"><small>UNSERVED LOAD</small><strong id="simResultUnserved">--</strong></div>
+            <div class="sim-kpi"><small>BATTERY CYCLES</small><strong id="simResultCycles">--</strong></div>
+            <div class="sim-kpi"><small>CO₂ AVOIDED</small><strong id="simResultCO2">--</strong></div>
+          </div>
+
+          <div class="chart-panel"><div class="panel-head"><h3>SIMULATION RESULTS <small>(24h)</small></h3></div><canvas id="simResultChart"></canvas></div>
+
+          <div class="sim-recommendation data-panel" id="simRecommendation">
+            <h3>AI ANALYSIS</h3>
+            <p class="large-note">Configure scenario parameters and run the simulation to see AI-powered analysis and recommendations.</p>
+          </div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ANALYTICS PAGE -->
+    <section class="page" data-page-content="analytics"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>ENERGY ANALYTICS</h1><p>Historical performance, trends, and energy intelligence</p></div></div>
+
+      <div class="analytics-kpi-grid">
+        <div class="analytics-kpi"><small>DAILY GENERATION</small><strong id="anlDailyGen">4.8 kWh</strong><span class="green" id="anlDailyGenTrend">↑ 12%</span></div>
+        <div class="analytics-kpi"><small>DAILY CONSUMPTION</small><strong id="anlDailyCons">3.5 kWh</strong><span id="anlDailyConsTrend">↓ 5%</span></div>
+        <div class="analytics-kpi"><small>RENEWABLE %</small><strong id="anlRenewablePct" class="green">87%</strong><span class="green">Above target</span></div>
+        <div class="analytics-kpi"><small>GRID DEPENDENCY</small><strong id="anlGridDep">13%</strong><span>Below threshold</span></div>
+        <div class="analytics-kpi"><small>PEAK LOAD</small><strong id="anlPeakLoad">6.2 kW</strong><span>18:00 today</span></div>
+        <div class="analytics-kpi"><small>SYSTEM EFFICIENCY</small><strong id="anlEfficiency" class="green">91%</strong><span class="green">Excellent</span></div>
+        <div class="analytics-kpi"><small>BATTERY HEALTH</small><strong id="anlBatteryHealth" class="green">96%</strong><span>312 cycles</span></div>
+        <div class="analytics-kpi"><small>MONTHLY CO₂ SAVED</small><strong id="anlCO2" class="green">128.6 kg</strong><span>≈ 9 trees</span></div>
+      </div>
+
+      <div class="charts" style="grid-template-columns:1fr 1fr">
+        <div class="chart-panel"><div class="panel-head"><h3>ENERGY GENERATION TREND</h3></div><canvas id="anlGenChart"></canvas></div>
+        <div class="chart-panel"><div class="panel-head"><h3>CONSUMPTION TREND</h3></div><canvas id="anlConsChart"></canvas></div>
+      </div>
+      <div class="charts" style="grid-template-columns:1fr 1fr">
+        <div class="chart-panel"><div class="panel-head"><h3>RENEWABLE vs GRID</h3></div><canvas id="anlSourceChart"></canvas></div>
+        <div class="chart-panel"><div class="panel-head"><h3>COST ANALYSIS</h3></div><canvas id="anlCostChart"></canvas></div>
+      </div>
+    </div></section>
+
+    <section class="page" data-page-content="ev"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>EV MANAGEMENT</h1><p>Smart EV charging and load balancing</p></div></div>
+      <div class="ev-layout">
+        <div class="ev-car">⚡<div>EV CHARGER</div><strong id="evChargerPower">0 W</strong><div class="ev-mode-badge" id="evModeBadge">MODE: SOLAR ECO</div></div>
+        <div class="data-panel">
+          <h3>CHARGING MODE CONTROL</h3>
+          <div class="ev-controls">
+            <button class="ev-mode-btn active" data-ev-mode="eco">☀ Solar Eco</button>
+            <button class="ev-mode-btn" data-ev-mode="fast">⚡ Fast Charge</button>
+            <button class="ev-mode-btn" data-ev-mode="off">⏻ Charger Off</button>
+          </div>
+          <h3>CHARGING STRATEGY</h3>
+          <p class="large-note">Charging is scheduled around renewable availability and system load so the EV does not unnecessarily stress the battery.</p>
+          <div class="decision-list"><div><b>✓</b> Renewable-priority charging</div><div><b>✓</b> Peak-load avoidance</div><div><b>✓</b> Battery reserve protection</div></div>
+        </div>
+      </div>
+    </div></section>
+
+    <section class="page" data-page-content="alerts"><div class="detail-shell">
+      <div class="detail-header">
+        <button class="back-home" data-go="dashboard">← Dashboard</button>
+        <div><h1>FAULTS & ALERTS</h1><p>System health and abnormal-condition monitoring</p></div>
+        <div class="header-action-group">
+          <button class="primary-btn danger-btn" id="triggerFaultBtn">⚡ Simulate Overload Fault</button>
+          <button class="secondary-btn" id="ackAlertsBtn">✓ Acknowledge All</button>
+        </div>
+      </div>
+      <div class="alert-list" id="alertsPageList">
+        <!-- Dynamically rendered alert cards -->
+      </div>
+    </div></section>
+
+    <section class="page" data-page-content="maintenance"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>PREDICTIVE MAINTENANCE</h1><p>Maintenance health indicators for system components</p></div></div>
+      <div class="maintenance-grid"><div><span>☀</span><h3>Solar Array</h3><strong>Healthy</strong><small>Cleanliness check recommended in 18 days</small></div><div><span>♨</span><h3>Wind Turbine</h3><strong>Healthy</strong><small>Mechanical inspection recommended in 24 days</small></div><div><span>▣</span><h3>Battery</h3><strong>Healthy</strong><small>Cycle health within expected range</small></div><div><span>⚡</span><h3>Inverter</h3><strong>Healthy</strong><small>Thermal status normal</small></div></div>
+    </div></section>
+
+    <section class="page" data-page-content="reports"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>REPORTS</h1><p>Performance summary for the REGENIX system</p></div></div>
+      <div class="report-grid">
+        <div><small>TODAY GENERATION</small><strong id="repGen">202 Wh</strong></div>
+        <div><small>TODAY CONSUMPTION</small><strong id="repCons">146 Wh</strong></div>
+        <div><small>EFFICIENCY</small><strong id="repEff">91%</strong></div>
+        <div><small>CO₂ SAVED</small><strong id="repCo2">128.6 kg</strong></div>
+      </div>
+      <div class="data-panel">
+        <h3>REPORT ACTIONS</h3>
+        <button class="primary-btn" id="exportReport">Generate & Download System Report</button>
+        <p id="reportMessage" class="muted"></p>
+      </div>
+    </div></section>
+
+    <section class="page" data-page-content="carbon"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>CARBON SAVINGS</h1><p>Environmental impact from renewable energy utilization</p></div></div>
+      <div class="carbon-big">
+        <div class="carbon-ring large">♧<b id="carbonRingKg">128.6</b><small>kg CO₂ Saved</small></div>
+        <div class="carbon-stats">
+          <div>🌳 <b id="carbonTreesCnt">9</b><span>Equivalent trees planted</span></div>
+          <div>🚗 <b id="carbonCarKm">542 km</b><span>Equivalent car travel avoided</span></div>
+          <div>⚡ <b id="carbonWhGen">202 Wh</b><span>Renewable generation tracked today</span></div>
+        </div>
+      </div>
+    </div></section>
+
+    <section class="page" data-page-content="settings"><div class="detail-shell">
+      <div class="detail-header"><button class="back-home" data-go="dashboard">← Dashboard</button><div><h1>SETTINGS</h1><p>REGENIX dashboard controls</p></div></div>
+      <div class="settings-panel">
+        <label class="switch-row"><span>Demo Live Data</span><input type="checkbox" id="liveToggle" checked><span class="cyber-switch"></span></label>
+        <label class="switch-row"><span>Animations</span><input type="checkbox" id="animationToggle" checked><span class="cyber-switch"></span></label>
+        <label class="switch-row"><span>3D Labels</span><input type="checkbox" id="labelToggle" checked><span class="cyber-switch"></span></label>
+        <label class="switch-row"><span>System Notifications</span><input type="checkbox" id="notifToggle" checked><span class="cyber-switch"></span></label>
+      </div>
+    </div></section>
+
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+
