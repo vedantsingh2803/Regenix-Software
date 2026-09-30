@@ -229,8 +229,8 @@ $$("[data-ev-mode]").forEach(btn => {
       simulateOfflineFault();
     }
   }
-  #triggerFaultBtn?.addEventListener("click", triggerDemoFault);
-  #drawerTriggerFaultBtn?.addEventListener("click", triggerDemoFault);
+  $("#triggerFaultBtn")?.addEventListener("click", triggerDemoFault);
+  $("#drawerTriggerFaultBtn")?.addEventListener("click", triggerDemoFault);
   
   /* Acknowledge Alerts API Handlers */
   async function acknowledgeAlerts(){
@@ -254,8 +254,8 @@ $$("[data-ev-mode]").forEach(btn => {
       toast("? Alerts cleared");
     }
   }
-  #ackAlertsBtn?.addEventListener("click", acknowledgeAlerts);
-  #drawerAckAllBtn?.addEventListener("click", acknowledgeAlerts);
+  $("#ackAlertsBtn")?.addEventListener("click", acknowledgeAlerts);
+  $("#drawerAckAllBtn")?.addEventListener("click", acknowledgeAlerts);
 
   async function fetchAlerts(){
     if(!state.backendConnected) {
