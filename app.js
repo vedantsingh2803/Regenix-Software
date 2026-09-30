@@ -196,92 +196,82 @@ $$("[data-ev-mode]").forEach(btn => {
   });
 });
 
-/* Fault Injection API Handlers */
-async function triggerDemoFault(){
-  if(state.backendConnected){
-    try {
-      await fetch("/api/alerts/trigger", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({type: "OVERLOAD"})
-      });
-      toast("⚠️ DEMO FAULT INJECTED: Critical System Overload!");
-      fetchAlerts();
-      fetchLiveTelemetry();
-    } catch(err){
-      toast("⚠️ Overload fault simulated");
-    }
-  } else {
-    toast("⚠️ Overload fault simulated");
-  }
-}
-$("#triggerFaultBtn")?.addEventListener("click", triggerDemoFault);
-$("#drawerTriggerFaultBtn")?.addEventListener("click", triggerDemoFault);
+  /* Fault Injection API Handlers */
+  let offlineAlerts = [];
 
-/* Acknowledge Alerts API Handlers */
-async function acknowledgeAlerts(){
-  if(state.backendConnected){
-    try {
-      await fetch("/api/alerts/acknowledge", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({})
-      });
-      toast("✓ All system alerts acknowledged");
-      fetchAlerts();
-    } catch(err){
-      toast("✓ Alerts cleared");
-    }
-  } else {
-    toast("✓ Alerts cleared");
+  function simulateOfflineFault() {
+    toast("?? Overload fault simulated (Offline Mode)");
+    offlineAlerts.unshift({
+      level: "critical", 
+      title: "CRITICAL OVERLOAD TRIP (Simulation)", 
+      message: "System load exceeded 1.5 kW safety limit! Dynamic load shedding triggered.", 
+      acknowledged: 0, 
+      time: new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})
+    });
+    renderAlertsList(offlineAlerts);
   }
-}
-$("#ackAlertsBtn")?.addEventListener("click", acknowledgeAlerts);
-$("#drawerAckAllBtn")?.addEventListener("click", acknowledgeAlerts);
 
-/* Report Export API Handler */
-$("#exportReport")?.addEventListener("click", async () => {
-  if(state.backendConnected){
-    try {
-      const res = await fetch("/api/reports/export", {method:"POST"});
-      const json = await res.json();
-      if(json.success){
-        const blob = new Blob([JSON.stringify(json.report, null, 2)], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `REGENIX_Report_${Date.now()}.json`;
-        a.click();
-        $("#reportMessage").textContent = `Report generated and downloaded — Today Gen: ${json.report.today_generation_wh} Wh | Eff: ${json.report.system_efficiency}`;
-        toast("System report downloaded successfully.");
+  async function triggerDemoFault(){
+    if(state.backendConnected){
+      try {
+        await fetch("/api/alerts/trigger", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({type: "OVERLOAD"})
+        });
+        toast("?? DEMO FAULT INJECTED: Critical System Overload!");
+        fetchAlerts();
+        fetchLiveTelemetry();
+      } catch(err){
+        simulateOfflineFault();
       }
-    } catch(err){
-      $("#reportMessage").textContent = "Demo report generated — Generation 202 Wh | Consumption 146 W | Efficiency 91%.";
-      toast("Demo report generated.");
+    } else {
+      simulateOfflineFault();
     }
-  } else {
-    $("#reportMessage").textContent = "Demo report generated — Generation 202 Wh | Consumption 146 W | Efficiency 91%.";
-    toast("Demo report generated.");
   }
-});
-
-/* Settings Toggles */
-$("#liveToggle")?.addEventListener("change", e=>{state.live=e.target.checked;toast(state.live?"Live data enabled":"Live data paused");});
-$("#animationToggle")?.addEventListener("change", e=>{state.animation=e.target.checked;});
-$("#labelToggle")?.addEventListener("change", e=>{state.labels=e.target.checked;updateLabelVisibility();});
-$("#notifToggle")?.addEventListener("change", e=>{state.notifications=e.target.checked;toast(state.notifications?"Notifications enabled":"Notifications muted");});
-
-/* Fetch Alerts List */
-async function fetchAlerts(){
-  if(!state.backendConnected) return;
-  try {
-    const res = await fetch("/api/alerts");
-    const data = await res.json();
-    renderAlertsList(data.alerts || []);
-  } catch(err){
-    console.error("Alerts fetch error:", err);
+  #triggerFaultBtn?.addEventListener("click", triggerDemoFault);
+  #drawerTriggerFaultBtn?.addEventListener("click", triggerDemoFault);
+  
+  /* Acknowledge Alerts API Handlers */
+  async function acknowledgeAlerts(){
+    if(state.backendConnected){
+      try {
+        await fetch("/api/alerts/acknowledge", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({})
+        });
+        toast("? All system alerts acknowledged");
+        fetchAlerts();
+      } catch(err){
+        offlineAlerts = [];
+        renderAlertsList(offlineAlerts);
+        toast("? Alerts cleared");
+      }
+    } else {
+      offlineAlerts = [];
+      renderAlertsList(offlineAlerts);
+      toast("? Alerts cleared");
+    }
   }
-}
+  #ackAlertsBtn?.addEventListener("click", acknowledgeAlerts);
+  #drawerAckAllBtn?.addEventListener("click", acknowledgeAlerts);
+
+  async function fetchAlerts(){
+    if(!state.backendConnected) {
+      renderAlertsList(offlineAlerts);
+      return;
+    }
+    try {
+      const res = await fetch("/api/alerts");
+      const data = await res.json();
+      renderAlertsList(data.alerts || []);
+    } catch(err){
+      console.error("Alerts fetch error:", err);
+      renderAlertsList(offlineAlerts);
+    }
+  }
+
 function renderAlertsList(alerts){
   const badge = $("#notifBadge");
   const drawerBody = $("#drawerAlertList");
